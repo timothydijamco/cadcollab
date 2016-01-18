@@ -50,7 +50,7 @@ var testElement = new Element(new Konva.Circle({
    stroke: 'black',
    strokeWidth: 3,
    id: 'testShape'
-}));
+})); //538 by 45
 var testElement2 = new Element(new Konva.Rect({
    x: 100,
    y: 120,
@@ -61,24 +61,29 @@ var testElement2 = new Element(new Konva.Rect({
    strokeWidth: 1,
    id: 'testShape2'
 }));
+var testImage = new Image();
+testImage.src = "img/AlumC_2_25_top_a.png";
+testImage.onload = function() {
+var testElement3 = new Element(new Konva.Image({
+   x: 10,
+   y: 10,
+   image: testImage,
+   width: 538,
+   height: 45
+}));
 elements.push(testElement);
 elements.push(testElement2);
+elements.push(testElement3);
+topViewLayer.draw();
+}
 
 var myNametag = new Nametag(name);
 myNametag.group.hide();
 
-topViewLayer.draw();
 
 // Events from others
 socket.on('moveStart', function(data) { // If we get this event, then someone legally took ownership of shape
    var element = findElement(data.shapeId); // Find shape
-   if (element.owner == key) {
-      element.ownerNametag = myNametag;
-   } else {
-      console.log("moveStart from " + data.senderName);
-      element.ownerNametag = new Nametag(data.senderName);
-   }
-   element.ownerNametag.group.show();
    topViewLayer.draw();
    element.owner = data.senderKey;
 });
@@ -87,6 +92,10 @@ socket.on('move', function(data) { // If we get this event, then the owner of th
    element.shape.x(data.pos.x);
    element.shape.y(data.pos.y);
 
+   if (element.ownerNametag == null) {
+      element.ownerNametag = new Nametag(data.senderName);
+      element.ownerNametag.group.show();
+   }
    if (element.shape.getClassName() == "Circle") {
       element.ownerNametag.group.x(data.pos.x - element.ownerNametag.background.width()/2);
       element.ownerNametag.group.y(data.pos.y - element.shape.height()/2 - element.ownerNametag.background.height() - 10);
@@ -101,6 +110,7 @@ socket.on('move', function(data) { // If we get this event, then the owner of th
 socket.on('moveEnd', function(data) {// If we get this event, then the legal owner of the shape stopped dragging
    var element = findElement(data.shapeId); // Find shape
    element.ownerNametag.group.hide();
+   element.ownerNametag = null;
    topViewLayer.draw();
    element.owner = -1; // Set owner to no owner
 });

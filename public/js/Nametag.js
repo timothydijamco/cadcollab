@@ -1,8 +1,9 @@
-var Nametag = function(name) {
+var Nametag = function(layer) {
+   console.log(layer);
    this.text = new Konva.Text({
       x: 0,
       y: 0,
-      text: name,
+      text: "",
       fontSize: 15,
       fontFamily: 'Verdana',
       fill: "white"
@@ -21,5 +22,10 @@ var Nametag = function(name) {
    });
    this.group.add(this.background);
    this.group.add(this.text);
-   topViewLayer.add(this.group);
+   layer.add(this.group);
+
+   // End constructor
+   this.updateName = function(name) {
+      this.text.setAttr("text", name);
+   }
 }

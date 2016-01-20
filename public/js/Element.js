@@ -1,32 +1,154 @@
-var Element = function(konvaObj) {
-   this.shape = konvaObj;
+function buildSide(parent, side, image_prefix_side) {
+   var image = new Image();
+   image.src = "img/"+image_prefix_side+"_a.png";
+   image.onload = function() {
+      parent[side] = new Side(new Konva.Image({
+         x: 10,
+         y: 10,
+         image: image,
+         width: this.width/14,
+         height: this.height/14,
+         id: "" + Math.round(Math.random()*999999)
+      }), side, parent);
+   }
+}
+
+var Element = function(name, image_prefix) {
+   this.name = name;
    this.owner = -1;
-   this.ownerNametag;
-   this.statedPos = {x: 0, y: 0};
-   topViewLayer.add(this.shape);
+   this.ownerName;
+   this.position = {x: 0, y: 0, z: 0};
+
+   this.top, this.front, this.right;
+   buildSide(this, "top", image_prefix+"_top");
+   buildSide(this, "front", image_prefix+"_front");
+   buildSide(this, "right", image_prefix+"_side");
+
+   this.updateAllPos = function() {
+      this.top.updatePos();
+      this.front.updatePos();
+      this.right.updatePos();
+   }
+
+   this.updateAllNametags = function() {
+      this.top.updateNametag();
+      this.front.updateNametag();
+      this.right.updateNametag();
+   }
+}
+
+var Side = function(konvaObj, side, parent) {
+   this.element = parent;
+   console.log("creating Side");
+   this.shape = konvaObj;
+   this.side = side; // top, front, or right
+   this.pos = {x: 0, y: 0};
+
+   this.shape.element = this.element;
+   this.shape.side = this.side;
+
+   switch (this.side) {
+      case "top":
+         this.layer = topViewLayer;
+         break;
+      case "front":
+         this.layer = frontViewLayer;
+         break;
+      case "right":
+         this.layer = rightViewLayer;
+         break;
+   }
+   console.log(this.side);
+   this.ownerNametag = new Nametag(this.layer);
+
+   this.layer.add(this.shape);
+   this.layer.draw();
+
+   // End constructor
+
+   this.updatePos = function() {
+      switch (this.side) {
+         case "top":
+            this.shape.x(this.element.position.x);
+            this.shape.y(this.element.position.y);
+            break;
+         case "front":
+            this.shape.x(this.element.position.x);
+            this.shape.y(this.element.position.z);
+            break;
+         case "right":
+            this.shape.x(this.element.position.y);
+            this.shape.y(this.element.position.z);
+            break;
+      }
+      this.layer.draw();
+   }
+
+   this.updateNametag = function() {
+      if (this.element.ownerName) {
+         this.ownerNametag.updateName(this.element.ownerName);
+         this.ownerNametag.group.show();
+         this.ownerNametag.group.x(this.shape.x() + (this.shape.width() - this.ownerNametag.background.width())/2);
+         this.ownerNametag.group.y(this.shape.y() - this.ownerNametag.background.height() - 10);
+
+         console.log(side + ": (" + this.ownerNametag.group.x() + ", " + this.ownerNametag.group.y() + ")");
+      } else {
+         this.ownerNametag.group.hide();
+      }
+   }
 
    this.shape.setAttr('draggable', true);
    this.shape.setAttr('dragBoundFunc', function(pos) {
-      var element = findElement(this.getId());
-      if (element.owner == key || element.owner == -1) {
-         socket.emit('move', {senderKey: key, senderName: name, pos: pos, shapeId: element.shape.getId()});
+      //var element = findElement(this.getId());
+      if (this.element.owner == key || this.element.owner == -1) {
+         this.element.updateAllNametags();
+         switch (this.side) {
+            case "top":
+               this.element.position.x = pos.x;
+               this.element.position.y = pos.y;
+
+               this.element.front.updatePos();
+               this.element.right.updatePos();
+               frontViewLayer.batchDraw();
+               rightViewLayer.batchDraw();
+               break;
+            case "front":
+               this.element.position.x = pos.x;
+               this.element.position.z = pos.y;
+
+               this.element.top.updatePos();
+               this.element.right.updatePos();
+               topViewLayer.batchDraw();
+               rightViewLayer.batchDraw();
+               break;
+            case "right":
+               this.element.position.y = pos.x;
+               this.element.position.z = pos.y;
+
+               this.element.top.updatePos();
+               this.element.front.updatePos();
+               topViewLayer.batchDraw();
+               frontViewLayer.batchDraw();
+               break;
+         }
+         socket.emit('move', {senderKey: key, senderName: name, elementName: this.element.name, pos: pos, side: side});
          return pos;
       } else { // Otherwise, set the shape position to the whatever the owner says the position is
-         return element.statedPos;
+         return this.element.statedPos;
       }
    });
 
    this.shape.on('dragstart', function() {
-      var element = findElement(this.getId());
-      if (element.owner == key || element.owner == -1) { // If we own shape or no one owns shape
-         element.owner = key;
-         socket.emit('moveStart', {senderKey: key, senderName: name, shapeId: element.shape.getId()});
+      //var element = findElement(this.getId());
+      if (this.element.owner == key || this.element.owner == -1) { // If we own shape or no one owns shape
+         this.element.owner = key;
+         //socket.emit('moveStart', {senderKey: key, senderName: name, element: this.element});
       }
    });
    this.shape.on('dragend', function() {
-      var element = findElement(this.getId());
-      if (element.owner == key) { // If we own shape
-         socket.emit('moveEnd', {senderKey: key, senderName: name, shapeId: element.shape.getId()});
+      //var element = findElement(this.getId());
+      if (this.element.owner == key) { // If we own shape
+         socket.emit('moveEnd', {senderKey: key, senderName: name, elementName: this.element.name});
       }
    });
 }

@@ -17,7 +17,7 @@ var Element = function(name, image_prefix) {
    this.name = name;
    this.owner = -1;
    this.ownerName;
-   this.position = {x: 0, y: 0, z: 0};
+   this.position = {x: 10, y: 440, z: 440};
 
    this.top, this.front, this.right;
    buildSide(this, "top", image_prefix+"_top");
@@ -69,19 +69,23 @@ var Side = function(konvaObj, side, parent) {
       switch (this.side) {
          case "top":
             this.shape.x(this.element.position.x);
-            this.shape.y(this.element.position.y);
+            this.shape.y(stageHeight - this.element.position.y);
+            this.shape.setZIndex(this.element.position.z);
             break;
          case "front":
             this.shape.x(this.element.position.x);
-            this.shape.y(this.element.position.z);
+            this.shape.y(stageHeight - this.element.position.z);
+            this.shape.setZIndex(this.element.position.y);
             break;
          case "right":
-            this.shape.x(this.element.position.y);
-            this.shape.y(this.element.position.z);
+            this.shape.x(this.element.position.y-this.shape.width());
+            this.shape.y(stageHeight - this.element.position.z);
+            this.shape.setZIndex(this.element.position.x+this.element.front.shape.width());
             break;
       }
       this.layer.draw();
-   }
+   };
+   this.updatePos();
 
    this.updateNametag = function() {
       if (this.element.ownerName) {
@@ -102,7 +106,7 @@ var Side = function(konvaObj, side, parent) {
          switch (this.side) {
             case "top":
                this.element.position.x = pos.x;
-               this.element.position.y = pos.y;
+               this.element.position.y = stageHeight - pos.y;
 
                this.element.front.updatePos();
                this.element.right.updatePos();
@@ -111,7 +115,7 @@ var Side = function(konvaObj, side, parent) {
                break;
             case "front":
                this.element.position.x = pos.x;
-               this.element.position.z = pos.y;
+               this.element.position.z = stageHeight - pos.y;
 
                this.element.top.updatePos();
                this.element.right.updatePos();
@@ -119,8 +123,8 @@ var Side = function(konvaObj, side, parent) {
                rightViewLayer.batchDraw();
                break;
             case "right":
-               this.element.position.y = pos.x;
-               this.element.position.z = pos.y;
+               this.element.position.y = pos.x + this.width();
+               this.element.position.z = stageHeight - pos.y;
 
                this.element.top.updatePos();
                this.element.front.updatePos();

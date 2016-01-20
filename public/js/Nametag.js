@@ -1,5 +1,4 @@
 var Nametag = function(layer) {
-   console.log(layer);
    this.text = new Konva.Text({
       x: 0,
       y: 0,

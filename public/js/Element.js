@@ -6,8 +6,8 @@ function buildSide(parent, side, image_prefix_side) {
          x: 10,
          y: 10,
          image: image,
-         width: this.width/14,
-         height: this.height/14,
+         width: this.width/10,
+         height: this.height/10,
          id: "" + Math.round(Math.random()*999999)
       }), side, parent);
    }
@@ -42,7 +42,6 @@ var Side = function(konvaObj, side, parent) {
    console.log("creating Side");
    this.shape = konvaObj;
    this.side = side; // top, front, or right
-   this.pos = {x: 0, y: 0};
 
    this.shape.element = this.element;
    this.shape.side = this.side;
@@ -58,8 +57,8 @@ var Side = function(konvaObj, side, parent) {
          this.layer = rightViewLayer;
          break;
    }
-   console.log(this.side);
    this.ownerNametag = new Nametag(this.layer);
+   this.ownerNametag.group.hide();
 
    this.layer.add(this.shape);
    this.layer.draw();
@@ -90,8 +89,6 @@ var Side = function(konvaObj, side, parent) {
          this.ownerNametag.group.show();
          this.ownerNametag.group.x(this.shape.x() + (this.shape.width() - this.ownerNametag.background.width())/2);
          this.ownerNametag.group.y(this.shape.y() - this.ownerNametag.background.height() - 10);
-
-         console.log(side + ": (" + this.ownerNametag.group.x() + ", " + this.ownerNametag.group.y() + ")");
       } else {
          this.ownerNametag.group.hide();
       }
@@ -134,7 +131,7 @@ var Side = function(konvaObj, side, parent) {
          socket.emit('move', {senderKey: key, senderName: name, elementName: this.element.name, pos: pos, side: side});
          return pos;
       } else { // Otherwise, set the shape position to the whatever the owner says the position is
-         return this.element.statedPos;
+         return {x: this.x(), y: this.y()};
       }
    });
 

@@ -3,28 +3,28 @@ var name = key;
 
 var socket = io();
 // Set up stages
+var stageWidth = $("#topViewContainer").width();
+var stageHeight = $("#topViewContainer").height();
 var topViewStage = new Konva.Stage({
-   container: 'container',
-   width: 600,
-   height: 450
+   container: 'topViewContainer',
+   width: stageWidth,
+   height: stageHeight
 });
 var isometricViewStage = new Konva.Stage({
    container: "isometricViewContainer",
-   width: 600,
-   height: 450
+   width: stageWidth,
+   height: stageHeight
 });
 var frontViewStage = new Konva.Stage({
    container: "frontViewContainer",
-   width: 600,
-   height: 450
+   width: stageWidth,
+   height: stageHeight
 });
 var rightViewStage = new Konva.Stage({
    container: "rightViewContainer",
-   width: 600,
-   height: 450
+   width: stageWidth,
+   height: stageHeight
 });
-var stageWidth = 600;
-var stageHeight = 450;
 
 // Set up layers
 var topViewLayer = new Konva.Layer();

@@ -2,14 +2,17 @@ function buildSide(parent, side, image_prefix_side) {
    var image = new Image();
    image.src = "img/"+image_prefix_side+"_a.png";
    image.onload = function() {
+      console.log(stageWidth/6000);
       parent[side] = new Side(new Konva.Image({
          x: 10,
          y: 10,
          image: image,
-         width: this.width/10,
-         height: this.height/10,
+         width: (this.width*stageWidth)/6000,
+         height: (this.height*stageWidth)/6000,
          id: "" + Math.round(Math.random()*999999)
       }), side, parent);
+      console.log("x: " + parent[side].shape.x() + ", y: " + parent[side].shape.y());
+      console.log("h: " + parent[side].shape.height() + ", w: " + parent[side].shape.width());
    }
 }
 
@@ -17,7 +20,7 @@ var Element = function(name, image_prefix) {
    this.name = name;
    this.owner = -1;
    this.ownerName;
-   this.position = {x: 10, y: 440, z: 440};
+   this.position = {x: 10, y: stageHeight-10, z: stageHeight-10};
 
    this.top, this.front, this.right;
    buildSide(this, "top", image_prefix+"_top");

@@ -74,7 +74,7 @@ socket.on('move', function(data) { // If we get this event, then the owner of th
             element.right.updatePos();
             break;
          case "right":
-            element.position.y = data.pos.x + element.right.width();
+            element.position.y = data.pos.x + element.right.shape.width();
             element.position.z = stageHeight - data.pos.y;
 
             element.top.updatePos();

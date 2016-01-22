@@ -39,7 +39,7 @@ var Element = function(name, image_prefix) {
       this.right.updateNametag();
    }
 }
-
+var limitedFrequencyEmit = new LimitedFrequencyEmit(25);
 var Side = function(konvaObj, side, parent) {
    this.element = parent;
    console.log("creating Side");
@@ -105,6 +105,7 @@ var Side = function(konvaObj, side, parent) {
    this.shape.setAttr('dragBoundFunc', function(pos) {
       //var element = findElement(this.getId());
       if (this.element.owner == key || this.element.owner == -1) {
+         this.element.owner = key;
          this.element.updateAllNametags();
          switch (this.side) {
             case "top":
@@ -135,24 +136,30 @@ var Side = function(konvaObj, side, parent) {
                frontViewLayer.batchDraw();
                break;
          }
-         socket.emit('move', {senderKey: key, senderName: name, elementName: this.element.name, pos: pos, side: side});
+         limitedFrequencyEmit.tryEmit('move', {senderKey: key, senderName: name, elementName: this.element.name, pos: pos, side: side});
          return pos;
       } else { // Otherwise, set the shape position to the whatever the owner says the position is
          return {x: this.x(), y: this.y()};
       }
    });
 
-   this.shape.on('dragstart', function() {
-      //var element = findElement(this.getId());
-      if (this.element.owner == key || this.element.owner == -1) { // If we own shape or no one owns shape
-         this.element.owner = key;
-         //socket.emit('moveStart', {senderKey: key, senderName: name, element: this.element});
-      }
-   });
    this.shape.on('dragend', function() {
       //var element = findElement(this.getId());
       if (this.element.owner == key) { // If we own shape
          socket.emit('moveEnd', {senderKey: key, senderName: name, elementName: this.element.name});
       }
    });
+}
+
+function LimitedFrequencyEmit(interval) {
+   this.interval = interval
+   this.lastCall = 0;
+
+   this.tryEmit = function(name, data) {
+      var now = Date.now();
+      if (this.lastCall + this.interval < now) {
+         this.lastCall = now;
+         socket.emit(name,data);
+      }
+   }
 }

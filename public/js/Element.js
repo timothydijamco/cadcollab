@@ -42,7 +42,7 @@ var Element = function(name, image_prefix) {
 var limitedFrequencyEmit = new LimitedFrequencyEmit(25);
 var Side = function(konvaObj, side, parent) {
    this.element = parent;
-   console.log("creating Side");
+   console.log("creating Side: " + side + parent.name);
    this.shape = konvaObj;
    this.side = side; // top, front, or right
 
@@ -88,7 +88,10 @@ var Side = function(konvaObj, side, parent) {
       }
       this.layer.draw();
    };
-   this.updatePos();
+   setTimeout(function() {
+      console.log("yes.");
+      this.updatePos();
+   }.bind(this), 100);
 
    this.updateNametag = function() {
       if (this.element.ownerName) {

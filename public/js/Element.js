@@ -73,17 +73,17 @@ var Side = function(konvaObj, side, parent) {
          case "top":
             this.shape.x(this.element.position.x);
             this.shape.y(stageHeight - this.element.position.y);
-            this.shape.setZIndex(this.element.position.z);
+            //this.shape.setZIndex(this.element.position.z);
             break;
          case "front":
             this.shape.x(this.element.position.x);
             this.shape.y(stageHeight - this.element.position.z);
-            this.shape.setZIndex(this.element.position.y);
+            //this.shape.setZIndex(this.element.position.y);
             break;
          case "right":
             this.shape.x(this.element.position.y-this.shape.width());
             this.shape.y(stageHeight - this.element.position.z);
-            this.shape.setZIndex(this.element.position.x+this.element.front.shape.width());
+            //this.shape.setZIndex(this.element.position.x+this.element.front.shape.width());
             break;
       }
       this.layer.draw();
@@ -163,6 +163,60 @@ function LimitedFrequencyEmit(interval) {
       if (this.lastCall + this.interval < now) {
          this.lastCall = now;
          socket.emit(name,data);
+         updateZIndices();
       }
+   }
+}
+
+function updateZIndices() {
+   var topOrder = [];
+   var frontOrder = [];
+   var rightOrder = [];
+   for (var i = 0; i < elements.length; i++) {
+      topOrder.push(i);
+      frontOrder.push(i);
+      rightOrder.push(i);
+   }
+   for (var i = 1; i < topOrder.length; i++) {
+      for (var j = i; j > 0; j--) {
+         if (elements[topOrder[j]].position.z < elements[topOrder[j-1]].position.z) {
+            var tempLeft = topOrder[j-1];
+            topOrder[j-1] = topOrder[j];
+            topOrder[j] = tempLeft;
+         } else {
+            break;
+         }
+      }
+   }
+   for (var i = 1; i < frontOrder.length; i++) {
+      for (var j = i; j > 0; j--) {
+         if (elements[frontOrder[j]].position.y-elements[frontOrder[j]].top.shape.height() > elements[frontOrder[j-1]].position.y-elements[frontOrder[j-1]].top.shape.height()) {
+            var tempLeft = frontOrder[j-1];
+            frontOrder[j-1] = frontOrder[j];
+            frontOrder[j] = tempLeft;
+         } else {
+            break;
+         }
+      }
+   }
+   for (var i = 1; i < rightOrder.length; i++) {
+      for (var j = i; j > 0; j--) {
+         if (elements[rightOrder[j]].position.x+elements[rightOrder[j]].top.shape.width() < elements[rightOrder[j-1]].position.x+elements[rightOrder[j-1]].top.shape.width()) {
+            var tempLeft = rightOrder[j-1];
+            rightOrder[j-1] = rightOrder[j];
+            rightOrder[j] = tempLeft;
+         } else {
+            break;
+         }
+      }
+   }
+   for (var i = 0; i < topOrder.length; i++) {
+      elements[topOrder[i]].top.shape.setZIndex(i+2);
+   }
+   for (var i = 0; i < frontOrder.length; i++) {
+      elements[frontOrder[i]].front.shape.setZIndex(i+2);
+   }
+   for (var i = 0; i < rightOrder.length; i++) {
+      elements[rightOrder[i]].right.shape.setZIndex(i+2);
    }
 }

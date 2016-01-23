@@ -46,10 +46,19 @@ function findElement(elementName) {
 }
 
 // Test
-var testElement = new Element("testElement", "AlumC_2_25");
-elements.push(testElement);
+var testMetal= new Element("testElement", "AlumC_2_25");
+var testMetal2 = new Element("testElement2", "AlumC_2_25");
 var testMotor = new Element("testMotor", "Motor393");
+var testWheel = new Element("testWheel", "OmniWheel");
+var testAxle = new Element("testAxle", "Driveshaft");
+elements.push(testMetal);
+elements.push(testMetal2);
 elements.push(testMotor);
+elements.push(testWheel);
+elements.push(testAxle);
+setTimeout(function() {
+   updateZIndices();
+},500);
 
 
 socket.on('move', function(data) { // If we get this event, then the owner of the shape has dragged the shape
@@ -83,6 +92,7 @@ socket.on('move', function(data) { // If we get this event, then the owner of th
       }
       element[data.side].shape.x(data.pos.x);
       element[data.side].shape.y(data.pos.y);
+      updateZIndices();
 
       if (element.ownerName == null) {
          element.ownerName = data.senderName;

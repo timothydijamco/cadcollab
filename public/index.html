@@ -1,10 +1,12 @@
 <HTML>
 <head>
+   <title>CADcollab</title>
    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
    <script src="https://cdn.socket.io/socket.io-1.4.3.js"></script>
    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
    <script src="js/konva.min.js"></script>
 
+   <link href='https://fonts.googleapis.com/css?family=Lato:300,700' rel='stylesheet' type='text/css'>
    <style>
       .container {
          float: left;
@@ -16,7 +18,28 @@
       .leftContainer {
          clear: left;
       }
-
+      #infoContainer {
+         text-align: center;
+         font-family: "Lato", serif;
+         font-size: 14pt;
+      }
+      #infoText {
+         margin-top: 100px;
+         margin-bottom: 20px;
+         color: #444;
+      }
+      input {
+         padding: 10px 15px;
+         font-family: Lato;
+         font-size: 18pt;
+         text-align: center;
+      }
+      button {
+         margin-top: 20px;
+         padding: 10px 28px;
+         font-family: Lato;
+         font-size: 14pt;
+      }
       @media only screen and (max-device-width: 900px) {
          .container {
             width: 260px;
@@ -27,8 +50,14 @@
    </style>
 </head>
 <body>
-<div id="topViewContainer" class="leftContainer container"></div><div id="isometricViewContainer" class="rightContainer container"></div>
-<div id="frontViewContainer" class="leftContainer container"></div><div id="rightViewContainer" class="rightContainer container"></div>
+<div id="topViewContainer" class="leftContainer container"></div>
+<div id="infoContainer" class="rightContainer container">
+<p id="infoText">ENTER YOUR NAME:</p>
+<input id="nameInput" type="text" size="10" maxlength="10"></input><br/>
+<button onClick="enterName()">Enter</button>
+</div>
+<div id="frontViewContainer" class="leftContainer container">
+</div><div id="rightViewContainer" class="rightContainer container"></div>
 </body>
 <script src="js/Nametag.js"></script>
 <script src="js/Element.js"></script>

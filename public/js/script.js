@@ -10,11 +10,6 @@ var topViewStage = new Konva.Stage({
    width: stageWidth,
    height: stageHeight
 });
-var isometricViewStage = new Konva.Stage({
-   container: "isometricViewContainer",
-   width: stageWidth,
-   height: stageHeight
-});
 var frontViewStage = new Konva.Stage({
    container: "frontViewContainer",
    width: stageWidth,
@@ -25,6 +20,9 @@ var rightViewStage = new Konva.Stage({
    width: stageWidth,
    height: stageHeight
 });
+topViewStage.opacity(0);
+frontViewStage.opacity(0);
+rightViewStage.opacity(0);
 
 // Set up layers
 var topViewLayer = new Konva.Layer();
@@ -60,6 +58,21 @@ setTimeout(function() {
    updateZIndices();
 },500);
 
+function enterName() {
+   name = $("#nameInput").val();
+
+   topViewStage.opacity(1);
+   frontViewStage.opacity(1);
+   rightViewStage.opacity(1);
+   topViewStage.draw();
+   frontViewStage.draw();
+   rightViewStage.draw();
+
+   $("#infoContainer").children().hide();
+}
+
+
+// Socket listeners
 
 socket.on('move', function(data) { // If we get this event, then the owner of the shape has dragged the shape
    var element = findElement(data.elementName);

@@ -145,13 +145,31 @@ var Side = function(konvaObj, side, parent) {
          return {x: this.x(), y: this.y()};
       }
    });
-
    this.shape.on('dragend', function() {
       //var element = findElement(this.getId());
       if (this.element.owner == key) { // If we own shape
          socket.emit('moveEnd', {senderKey: key, senderName: name, elementName: this.element.name});
       }
    });
+   this.opacity = 1;
+   this.shape.on('mouseover', function() {
+      $(document).bind('keypress', function(event){
+          var keycode = (event.keyCode ? event.keyCode : event.which);
+          if(keycode == '13'){
+             if (this.opacity == 1) {
+                this.shape.opacity(0.3);
+                this.opacity = 0.3;
+             } else {
+                this.shape.opacity(1.0);
+                this.opacity = 1.0;
+             }
+             this.layer.draw();
+          }
+      }.bind(this));
+   }.bind(this));
+   this.shape.on('mouseout', function() {
+      $(document).unbind('keypress');
+   })
 }
 
 function LimitedFrequencyEmit(interval) {
